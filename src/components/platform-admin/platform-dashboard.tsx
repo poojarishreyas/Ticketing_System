@@ -103,16 +103,28 @@ function getTenantIconColor(name: string) {
 // Component
 // ---------------------------------------------------------------------------
 
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+
 export function PlatformDashboard() {
   const { accessToken } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // State for List API
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [statusFilter, setStatusFilter] = useState<TenantStatus | undefined>();
-  const [sort, setSort] = useState<'createdAt' | 'name' | 'status'>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  // State for List API initialized from URL
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+  const [pageSize, setPageSize] = useState(Number(searchParams.get('limit')) || 10);
+  const [statusFilter, setStatusFilter] = useState<TenantStatus | undefined>(
+    (searchParams.get('status') as TenantStatus) || undefined
+  );
+  const [sort, setSort] = useState<'createdAt' | 'name' | 'status'>(
+    (searchParams.get('sort') as 'createdAt' | 'name' | 'status') || 'createdAt'
+  );
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
+    (searchParams.get('order') as 'asc' | 'desc') || 'desc'
+  );
+  
   const [tenantToUpdate, setTenantToUpdate] = useState<{
     id: string;
     name: string;
@@ -121,6 +133,15 @@ export function PlatformDashboard() {
   const [tenantToDelete, setTenantToDelete] = useState<{ id: string; name: string } | null>(null);
   const deleteTenant = useDeleteTenant(accessToken ?? '');
   const updateTenantStatus = useUpdateTenantStatus(accessToken ?? '');
+
+  const updateUrl = (updates: Record<string, string | number | undefined>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) params.set(key, String(value));
+      else params.delete(key);
+    });
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Fetch Stats
   const { data: statsResponse, isLoading: isStatsLoading } = useTenantStats(accessToken ?? '');
@@ -258,6 +279,7 @@ export function PlatformDashboard() {
                 onChange={(e) => {
                   setSearch(e.target.value);
                   setPage(1); // Reset to page 1 on search
+                  updateUrl({ search: e.target.value, page: 1 });
                 }}
               />
             </div>
@@ -273,6 +295,7 @@ export function PlatformDashboard() {
                   onClick={() => {
                     setStatusFilter(undefined);
                     setPage(1);
+                    updateUrl({ status: undefined, page: 1 });
                   }}
                 >
                   All Statuses
@@ -281,6 +304,7 @@ export function PlatformDashboard() {
                   onClick={() => {
                     setStatusFilter('ACTIVE');
                     setPage(1);
+                    updateUrl({ status: 'ACTIVE', page: 1 });
                   }}
                 >
                   Active
@@ -289,6 +313,7 @@ export function PlatformDashboard() {
                   onClick={() => {
                     setStatusFilter('SUSPENDED');
                     setPage(1);
+                    updateUrl({ status: 'SUSPENDED', page: 1 });
                   }}
                 >
                   Suspended
@@ -297,6 +322,7 @@ export function PlatformDashboard() {
                   onClick={() => {
                     setStatusFilter('PENDING_ACTIVATION');
                     setPage(1);
+                    updateUrl({ status: 'PENDING_ACTIVATION', page: 1 });
                   }}
                 >
                   Pending Activation
@@ -314,6 +340,7 @@ export function PlatformDashboard() {
                     setSort('createdAt');
                     setSortOrder('desc');
                     setPage(1);
+                    updateUrl({ sort: 'createdAt', order: 'desc', page: 1 });
                   }}
                 >
                   Newest first
@@ -323,6 +350,7 @@ export function PlatformDashboard() {
                     setSort('createdAt');
                     setSortOrder('asc');
                     setPage(1);
+                    updateUrl({ sort: 'createdAt', order: 'asc', page: 1 });
                   }}
                 >
                   Oldest first
@@ -332,6 +360,7 @@ export function PlatformDashboard() {
                     setSort('name');
                     setSortOrder('asc');
                     setPage(1);
+                    updateUrl({ sort: 'name', order: 'asc', page: 1 });
                   }}
                 >
                   Name: A to Z
@@ -341,6 +370,7 @@ export function PlatformDashboard() {
                     setSort('name');
                     setSortOrder('desc');
                     setPage(1);
+                    updateUrl({ sort: 'name', order: 'desc', page: 1 });
                   }}
                 >
                   Name: Z to A
@@ -350,6 +380,7 @@ export function PlatformDashboard() {
                     setSort('status');
                     setSortOrder('asc');
                     setPage(1);
+                    updateUrl({ sort: 'status', order: 'asc', page: 1 });
                   }}
                 >
                   Status: A to Z
@@ -543,7 +574,11 @@ export function PlatformDashboard() {
                 size="icon"
                 className="h-8 w-8 rounded-lg border-slate-200 text-slate-400 disabled:opacity-50"
                 disabled={!pagination || pagination.page === 1}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                onClick={() => {
+                  const newPage = Math.max(1, page - 1);
+                  setPage(newPage);
+                  updateUrl({ page: newPage });
+                }}
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
@@ -562,7 +597,11 @@ export function PlatformDashboard() {
                   pagination.page === pagination.totalPages ||
                   pagination.totalPages === 0
                 }
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => {
+                  const newPage = page + 1;
+                  setPage(newPage);
+                  updateUrl({ page: newPage });
+                }}
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -573,8 +612,10 @@ export function PlatformDashboard() {
                 className="h-8 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-600 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 value={pageSize}
                 onChange={(e) => {
-                  setPageSize(Number(e.target.value));
+                  const newSize = Number(e.target.value);
+                  setPageSize(newSize);
                   setPage(1);
+                  updateUrl({ limit: newSize, page: 1 });
                 }}
               >
                 <option value="5">5 / page</option>
