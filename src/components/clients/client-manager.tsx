@@ -45,7 +45,7 @@ export function ClientManager() {
       <motion.div
         variants={itemVariants}
         className={`grid gap-6 transition-all duration-300 ease-in-out ${
-          selectedClientId ? 'grid-cols-[1fr_400px]' : 'grid-cols-1'
+          selectedClientId ? 'grid-cols-[minmax(0,1fr)_400px]' : 'grid-cols-1'
         }`}
       >
         <div className="flex flex-col">

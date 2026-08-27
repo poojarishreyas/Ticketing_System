@@ -1,9 +1,14 @@
 'use client';
 
-import { Pencil, X } from 'lucide-react';
+import { Pencil, Trash2, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { useClient } from '@/hooks/use-clients';
+import { useCan } from '@/hooks/use-can';
+import { apiClient } from '@/services/api/api-client';
 
 interface ClientSidePanelProps {
   clientId: string;
@@ -12,6 +17,21 @@ interface ClientSidePanelProps {
 
 export function ClientSidePanel({ clientId, onClose }: ClientSidePanelProps) {
   const { data: clientWrapper, isLoading: isLoadingClient } = useClient(clientId);
+  const queryClient = useQueryClient();
+  const canUpdateClient = useCan('CLIENT_UPDATE');
+  const canDeleteClient = useCan('CLIENT_DELETE');
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this client?')) return;
+    try {
+      await apiClient(`/clients/${clientId}`, { method: 'DELETE' });
+      toast.success('Client deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      onClose();
+    } catch (error) {
+      toast.error('Failed to delete client');
+    }
+  };
 
   const client = clientWrapper?.client;
 
@@ -63,14 +83,28 @@ export function ClientSidePanel({ clientId, onClose }: ClientSidePanelProps) {
         <div className="mb-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900">Client Information</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 text-xs font-medium"
-              onClick={() => (window.location.href = `/clients/${client.id}?tab=edit`)}
-            >
-              <Pencil className="mr-1.5 h-3 w-3" /> Edit
-            </Button>
+            <div className="flex items-center gap-2">
+              {canUpdateClient && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs font-medium"
+                  onClick={() => (window.location.href = `/clients/${client.id}?tab=edit`)}
+                >
+                  <Pencil className="mr-1.5 h-3 w-3" /> Edit
+                </Button>
+              )}
+              {canDeleteClient && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="mr-1.5 h-3 w-3" /> Delete
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">

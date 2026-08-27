@@ -1,6 +1,9 @@
 'use client';
 
-import { AlertCircle, Calendar, CheckCircle2, Clock, Folder, User, X } from 'lucide-react';
+import { AlertCircle, Calendar, CheckCircle2, Clock, Folder, Trash2, User, X } from 'lucide-react';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -8,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCan } from '@/hooks/use-can';
 import { useProject } from '@/hooks/use-projects';
 import { useTenantSLA } from '@/hooks/use-sla';
+import { apiClient } from '@/services/api/api-client';
 
 interface ProjectSidePanelProps {
   projectId: string;
@@ -19,6 +23,20 @@ export function ProjectSidePanel({ projectId, onClose }: ProjectSidePanelProps) 
   const { data: slaData, isLoading: isLoadingSla } = useTenantSLA();
   const slaPolicy = slaData?.policy;
   const canUpdateProject = useCan('PROJECT_UPDATE');
+  const canDeleteProject = useCan('PROJECT_DELETE');
+  const queryClient = useQueryClient();
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this project?')) return;
+    try {
+      await apiClient(`/projects/${projectId}`, { method: 'DELETE' });
+      toast.success('Project deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      onClose();
+    } catch (error) {
+      toast.error('Failed to delete project');
+    }
+  };
 
   if (isLoadingProject || isLoadingSla) {
     return (
@@ -78,16 +96,28 @@ export function ProjectSidePanel({ projectId, onClose }: ProjectSidePanelProps) 
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-semibold text-slate-900">Project Information</h3>
-                {canUpdateProject && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-8 text-xs"
-                    onClick={() => (window.location.href = `/projects/${project.id}/edit`)}
-                  >
-                    Edit
-                  </Button>
-                )}
+                <div className="flex items-center gap-2">
+                  {canUpdateProject && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() => (window.location.href = `/projects/${project.id}/edit`)}
+                    >
+                      Edit
+                    </Button>
+                  )}
+                  {canDeleteProject && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={handleDelete}
+                    >
+                      <Trash2 className="mr-1.5 h-3 w-3" /> Delete
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-y-6">
                 <div>
