@@ -400,6 +400,25 @@ export class ClientService {
     return runInTransaction(async (db) => {
       // Validate existence and ownership
       await this.getClientById(tenantId, id);
+
+      // Find all users belonging to this client
+      const usersToArchive = await db.user.findMany({
+        where: { clientId: id, tenantId: tenantId, deletedAt: null }
+      });
+
+      // Soft-delete and scramble email to prevent unique constraint conflicts on re-creation
+      for (const user of usersToArchive) {
+        await db.user.update({
+          where: { id: user.id },
+          data: {
+            email: `${user.email}.archived.${Date.now()}`,
+            status: 'INACTIVE',
+            deletedAt: new Date(),
+            updatedBy: actorId,
+          }
+        });
+      }
+
       return clientRepository.archive(id, actorId, db);
     }, tx);
   }
