@@ -328,7 +328,7 @@ export function OnboardClientWizard() {
                 <Textarea
                   id="address"
                   {...register('address')}
-                  className="min-h-[60px] border-slate-200 bg-slate-50"
+                  className="max-h-24 overflow-y-auto border-slate-200 bg-slate-50"
                   placeholder="123 Business St, Suite 100..."
                   disabled={isPending}
                 />
@@ -382,7 +382,7 @@ export function OnboardClientWizard() {
                 <Textarea
                   id="project.description"
                   {...register('project.description')}
-                  className={`min-h-[80px] bg-slate-50 ${errors.project?.description ? 'border-red-400' : 'border-slate-200'}`}
+                  className={`h-32 overflow-y-auto resize-none bg-slate-50 ${errors.project?.description ? 'border-red-400' : 'border-slate-200'}`}
                   placeholder="Initial implementation phase..."
                   disabled={isPending}
                 />
