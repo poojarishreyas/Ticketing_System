@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Tenant, TenantStatus } from '@prisma/client';
+import { Tenant, TenantStatus, User } from '@prisma/client';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -31,6 +31,7 @@ export function TenantDetails({ id }: { id: string }) {
   const { accessToken } = useAuth();
   const router = useRouter();
   const [tenant, setTenant] = useState<Tenant | null>(null);
+  const [tenantAdmins, setTenantAdmins] = useState<Omit<User, 'password'>[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Navigation & Dirty State
@@ -55,8 +56,12 @@ export function TenantDetails({ id }: { id: string }) {
     if (!accessToken) return;
     try {
       setLoading(true);
-      const res = await tenantApi.getTenant(id, accessToken);
+      const [res, usersRes] = await Promise.all([
+        tenantApi.getTenant(id, accessToken),
+        tenantApi.getTenantUsers(id, 'TENANT_ADMIN', accessToken).catch(() => ({ data: [] })),
+      ]);
       setTenant(res.data);
+      setTenantAdmins(usersRes.data || []);
       reset({
         name: res.data.name,
         domain: res.data.domain,
@@ -244,6 +249,44 @@ export function TenantDetails({ id }: { id: string }) {
                 <Input {...register('contactPhone')} className="bg-white" />
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Tenant Administrators */}
+        <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 bg-slate-50/50 px-8 py-5">
+            <h2 className="text-lg font-semibold text-slate-900">Tenant Administrators</h2>
+            <p className="text-sm text-slate-500">Users who have administrative access to this tenant.</p>
+          </div>
+          <div className="p-0">
+            {tenantAdmins.length === 0 ? (
+              <div className="p-8 text-center text-sm text-slate-500">
+                No administrators found for this tenant.
+              </div>
+            ) : (
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <tr>
+                    <th className="px-8 py-4">Name</th>
+                    <th className="px-8 py-4">Email</th>
+                    <th className="px-8 py-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {tenantAdmins.map((admin) => (
+                    <tr key={admin.id}>
+                      <td className="px-8 py-4 font-medium text-slate-900">
+                        {admin.firstName} {admin.lastName}
+                      </td>
+                      <td className="px-8 py-4 text-slate-600">{admin.email}</td>
+                      <td className="px-8 py-4">
+                        <StatusBadge status={admin.status as any} variant="ring" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
 

@@ -1,4 +1,4 @@
-import { Tenant, TenantStatus } from '@prisma/client';
+import { Tenant, TenantStatus, User } from '@prisma/client';
 
 import { CreateTenantInput, ListTenantQuery, UpdateTenantInput } from '@/lib/tenant/tenant.schema';
 
@@ -63,6 +63,14 @@ export const tenantApi = {
   getTenantStats: async (token: string) => {
     return apiClient<{ data: { total: number; active: number; suspended: number } }>(
       '/platform/tenants/stats',
+      { token },
+    );
+  },
+
+  getTenantUsers: async (tenantId: string, role: string, token: string) => {
+    const query = new URLSearchParams({ role }).toString();
+    return apiClient<{ data: Omit<User, 'password'>[] }>(
+      `/platform/tenants/${tenantId}/users?${query}`,
       { token },
     );
   },
