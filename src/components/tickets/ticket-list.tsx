@@ -247,24 +247,6 @@ export function TicketList() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/60 bg-white/70 shadow-sm backdrop-blur-xl">
-      {/* 1. Tabs Row */}
-      <div className="w-full border-b border-slate-200/60 bg-white/40 px-6 lg:px-8">
-        <div className="scrollbar-hide flex space-x-6 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setTab(tab)}
-              className={`border-b-2 px-1 pt-2 pb-4 text-sm font-medium whitespace-nowrap transition-colors ${
-                currentTab === tab
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* 2. Filters Row */}
       <div className="flex flex-col gap-3 border-b border-slate-200/60 bg-white/40 px-6 py-4 lg:flex-row lg:items-center lg:justify-between lg:px-8">

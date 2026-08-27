@@ -1,13 +1,8 @@
 import { Suspense } from 'react';
-import Link from 'next/link';
-
-import { Download, Plus } from 'lucide-react';
 import { Metadata } from 'next';
 
-import { RequirePermission } from '@/components/auth/require-permission';
 import { TicketList } from '@/components/tickets/ticket-list';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { ExportTicketsButton } from '@/components/tickets/export-tickets-button';
 
 export const metadata: Metadata = {
   title: 'Tickets | Elipdesk',
@@ -25,26 +20,7 @@ export default function TicketsPage() {
         </div>
 
         <div className="mt-4 flex items-center gap-3 sm:mt-0">
-          <Button
-            variant="outline"
-            className="h-9 rounded-lg border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
-          >
-            <Download className="mr-2 h-4 w-4 text-slate-500" />
-            Export
-          </Button>
-
-          <RequirePermission permission="TICKET_CREATE">
-            <Link
-              href="/engineer/tickets/new"
-              className={cn(
-                buttonVariants({ variant: 'default' }),
-                'h-9 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700',
-              )}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create Ticket
-            </Link>
-          </RequirePermission>
+          <ExportTicketsButton />
         </div>
       </div>
 
