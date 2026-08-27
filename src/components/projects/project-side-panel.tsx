@@ -62,7 +62,6 @@ export function ProjectSidePanel({ projectId, onClose }: ProjectSidePanelProps) 
               <h2 className="text-lg font-semibold text-slate-900">{project.name}</h2>
               <StatusBadge status={project.status} variant="ring" />
             </div>
-            <p className="mt-1 text-sm text-slate-500">Project ID: {project.code || 'N/A'}</p>
           </div>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-slate-400">
@@ -79,13 +78,6 @@ export function ProjectSidePanel({ projectId, onClose }: ProjectSidePanelProps) 
               className="relative h-10 rounded-none border-b-2 border-transparent bg-transparent px-0 pt-2 pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 data-[state=active]:shadow-none"
             >
               Overview
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="activity"
-              className="relative h-10 rounded-none border-b-2 border-transparent bg-transparent px-0 pt-2 pb-3 text-sm font-medium text-slate-500 hover:text-slate-900 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 data-[state=active]:shadow-none"
-            >
-              Activity
             </TabsTrigger>
           </TabsList>
         </div>
@@ -174,32 +166,6 @@ export function ProjectSidePanel({ projectId, onClose }: ProjectSidePanelProps) 
 
 
 
-            {/* Activity */}
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900">Recent Activity</h3>
-                <Button variant="link" className="h-auto p-0 text-xs text-indigo-600">
-                  View All
-                </Button>
-              </div>
-              <div className="space-y-4">
-                {/* Temporary placeholder since we don't have the Activity Timeline component built out for Projects yet in this refactor */}
-                <div className="flex gap-3">
-                  <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                    <CheckCircle2 className="h-3 w-3" />
-                  </div>
-                  <div>
-                    <p className="text-[13px] font-medium text-slate-900">Project details viewed</p>
-                    <p className="text-[11px] text-slate-500">Just now</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-
-
-          <TabsContent value="activity" className="m-0 text-sm text-slate-500">
-            <p>Full activity timeline will go here.</p>
           </TabsContent>
         </div>
       </Tabs>
