@@ -92,10 +92,10 @@ export function CreateTicketModal({ open, onOpenChange, onCreated }: CreateTicke
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="max-w-[calc(100%-2rem)] p-0 sm:max-w-xl"
+        className="flex max-h-[90dvh] max-w-[calc(100%-2rem)] flex-col p-0 sm:max-w-xl"
         showCloseButton={!isSubmitting}
       >
-        <DialogHeader className="border-b border-slate-100 px-6 pt-6 pb-4">
+        <DialogHeader className="shrink-0 border-b border-slate-100 px-6 pb-4 pt-6">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
               <Ticket className="h-4 w-4" />
@@ -118,101 +118,103 @@ export function CreateTicketModal({ open, onOpenChange, onCreated }: CreateTicke
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(submit)} className="p-6">
-            {step === 1 ? (
-              <div className="space-y-5">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">What is this about?</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Choose a project and add a concise subject.
-                  </p>
-                </div>
-                <FormField
-                  control={form.control}
-                  name="projectId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Project</FormLabel>
-                      <Select
-                        items={projects.map((project) => ({
-                          value: project.id,
-                          label: project.name,
-                        }))}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+          <form onSubmit={form.handleSubmit(submit)} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto p-6">
+              {step === 1 ? (
+                <div className="space-y-5">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">What is this about?</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Choose a project and add a concise subject.
+                    </p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="projectId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Project</FormLabel>
+                        <Select
+                          items={projects.map((project) => ({
+                            value: project.id,
+                            label: project.name,
+                          }))}
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a project" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {isLoading ? (
+                              <div className="flex items-center gap-2 p-3 text-sm text-slate-500">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Loading projects
+                              </div>
+                            ) : (
+                              projects.map((project) => (
+                                <SelectItem key={project.id} value={project.id}>
+                                  {project.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subject</FormLabel>
                         <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a project" />
-                          </SelectTrigger>
+                          <Input
+                            {...field}
+                            placeholder="e.g. Unable to access the reporting dashboard"
+                            autoFocus
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {isLoading ? (
-                            <div className="flex items-center gap-2 p-3 text-sm text-slate-500">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Loading projects
-                            </div>
-                          ) : (
-                            projects.map((project) => (
-                              <SelectItem key={project.id} value={project.id}>
-                                {project.name}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Subject</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="e.g. Unable to access the reporting dashboard"
-                          autoFocus
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            ) : (
-              <div className="space-y-5">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">Add the details</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Include context, steps, and the outcome you expected.
-                  </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          className="min-h-40 resize-none"
-                          placeholder="Describe the issue in detail..."
-                          autoFocus
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
+              ) : (
+                <div className="space-y-5">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">Add the details</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Include context, steps, and the outcome you expected.
+                    </p>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            className="min-h-40 resize-none"
+                            placeholder="Describe the issue in detail..."
+                            autoFocus
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
 
-            <div className="mt-7 flex items-center justify-between border-t border-slate-100 pt-4">
+            <div className="flex shrink-0 items-center justify-between border-t border-slate-100 p-6 pt-4">
               {step === 1 ? (
                 <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
                   Cancel
