@@ -213,7 +213,7 @@ export function ClientList({ selectedClientId, onSelectClient }: ClientListProps
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 w-[35%] max-w-0">
                         <div className="flex flex-col overflow-hidden">
                           <span className="truncate font-medium text-slate-900">{client.name}</span>
                         </div>

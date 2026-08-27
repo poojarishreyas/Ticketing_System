@@ -133,7 +133,7 @@ export function ProjectSidePanel({ projectId, onClose }: ProjectSidePanelProps) 
                 </div>
                 <div className="col-span-2">
                   <p className="text-[11px] font-medium text-slate-400">Description</p>
-                  <p className="mt-1 text-[13px] text-slate-600">
+                  <p className="mt-1 text-[13px] text-slate-600 break-words whitespace-pre-wrap">
                     {project.description || 'No description provided.'}
                   </p>
                 </div>

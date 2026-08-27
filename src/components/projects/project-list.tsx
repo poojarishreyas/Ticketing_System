@@ -205,7 +205,7 @@ export function ProjectList({
                         getStringColorHover(project.name)
                       )}
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 w-[35%] max-w-0">
                         <div className="flex items-center gap-3">
                           <div
                             className={cn(
