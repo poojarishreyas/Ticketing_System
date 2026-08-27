@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { TicketStatus } from '@prisma/client';
 import { format } from 'date-fns';
@@ -142,6 +142,8 @@ export function TicketList() {
   if (!queryParams.has('limit')) queryParams.set('limit', '6');
   const { data, isLoading } = useTickets(queryParams);
 
+  const pathname = usePathname();
+
   // ---------------------------------------------------------------------------
   // Navigation Handlers
   // ---------------------------------------------------------------------------
@@ -161,7 +163,7 @@ export function TicketList() {
       params.set(key, value);
     }
 
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const setTab = (tabName: string) => {
@@ -172,7 +174,7 @@ export function TicketList() {
     if (tabName === 'Due Today') params.set('dueToday', 'true');
     if (tabName === 'Resolved') params.set('status', 'RESOLVED');
     if (tabName === 'Closed') params.set('status', 'CLOSED');
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -203,7 +205,7 @@ export function TicketList() {
       else params.set(key, value);
     });
     params.delete('page');
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
     setFiltersDialogOpen(false);
   };
 
@@ -212,7 +214,7 @@ export function TicketList() {
     params.set('sort', draftSort);
     params.set('order', draftOrder);
     params.delete('page');
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
     setSortDialogOpen(false);
   };
 
@@ -229,7 +231,7 @@ export function TicketList() {
       (key) => params.delete(key),
     );
     setSearchValue('');
-    router.push(`?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   // ---------------------------------------------------------------------------
