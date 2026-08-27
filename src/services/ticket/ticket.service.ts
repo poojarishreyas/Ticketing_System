@@ -61,6 +61,10 @@ export class TicketService {
       } else if (!user.clientId && ticket.reportedById !== user.id) {
         throw new NotFoundError('Ticket not found'); // Mask existence
       }
+    } else if (user && user.role === 'ENGINEER') {
+      if (ticket.assignedToId !== user.id) {
+        throw new NotFoundError('Ticket not found'); // Mask existence
+      }
     }
 
     return ticket;
@@ -86,7 +90,8 @@ export class TicketService {
       ]);
     }
 
-    const options = { clientId: targetClientId, assignedToId };
+    const targetAssignedToId = user.role === 'ENGINEER' ? user.id : assignedToId;
+    const options = { clientId: targetClientId, assignedToId: targetAssignedToId };
     const [stats, sla] = await Promise.all([
       ticketRepository.getDashboardSummaryCounts(options, tenantId),
       ticketRepository.getSLAStats(options, tenantId),

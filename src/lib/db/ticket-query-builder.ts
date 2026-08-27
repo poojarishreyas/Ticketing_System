@@ -32,9 +32,8 @@ export class TicketQueryBuilder {
         where.reportedById = user.id;
       }
     } else if (user.role === 'ENGINEER') {
-      // Engineers can see all tickets in the project, but we might want them to see assigned + unassigned pool
-      // For now, based on standard helpdesk norms, ENGINEERS can see all tickets for the tenant unless restricted.
-      // We will allow them to view all for now (as there is no project membership restriction yet).
+      // Engineers can only see tickets assigned to them
+      where.assignedToId = user.id;
     }
 
     if (query.search) {
@@ -74,7 +73,7 @@ export class TicketQueryBuilder {
       where.clientId = query.clientId;
     }
 
-    if (query.assignedToId) {
+    if (query.assignedToId && user.role !== 'ENGINEER') {
       if (query.assignedToId === 'unassigned') {
         where.assignedToId = null;
       } else {
